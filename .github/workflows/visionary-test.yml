@@ -25,6 +25,7 @@ jobs:
           echo "PR_TITLE=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "PR_BODY=$(jq -r .pull_request.body < $GITHUB_EVENT_PATH)" >> pr_body.txt
           echo "PR_COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.pull_request.commits_url }} | jq -r '.[] | .commit.message' | tr '\n' ' ')" >> $GITHUB_ENV
+          CONTRIBUTOR_NAMES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.pull_request.commits_url }} | jq -r '.[] | .commit.author.name' | tr '\n' ' ')
           echo "CONTRIBUTOR_NAMES=${CONTRIBUTOR_NAMES}" >> $GITHUB_ENV
 
           # Fetch all branches and do the diff
