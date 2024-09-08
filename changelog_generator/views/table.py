@@ -60,6 +60,9 @@ def main_table():
                     variant="surface",
                     on_change=lambda value: State.set_repository_url(value),
                 ),
+            ),
+            rx.spacer(),
+            rx.flex(
                 rx.input(
                     placeholder="Start tag",
                     size="3",
@@ -76,21 +79,6 @@ def main_table():
                     variant="surface",
                     on_change=lambda value: State.set_release_tag_end(value),
                 ),
-            ),
-            rx.spacer(),
-            rx.select(
-                [
-                    "customer_name",
-                    "email",
-                    "age",
-                    "gender",
-                    "location",
-                    "job",
-                    "salary",
-                ],
-                placeholder="Sort By: Name",
-                size="3",
-                on_change=lambda sort_value: State.sort_values(sort_value),
             ),
             justify="end",
             align="center",
