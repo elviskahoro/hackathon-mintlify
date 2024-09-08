@@ -1,0 +1,104 @@
+name: Blog Post Generator for PRs
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  generate_blog_post:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Collect PR information
+      - name: Collect PR information
+        id: pr_info
+        run: |
+          echo "PR_TITLE=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+          echo "PR_BODY=$(jq -r .pull_request.body < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+          echo "PR_COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.pull_request.commits_url }} | jq -r '.[] | .commit.message' | tr '\n' ' ')" >> $GITHUB_ENV
+
+          # Fetch all branches and do the diff
+          git fetch --all
+          
+          # Save the diff to a file instead of trying to put it into an environment variable
+          git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > pr_diff.txt
+
+          # Check the content of the diff file for debugging
+          echo "Git diff output saved to pr_diff.txt:"
+          cat pr_diff.txt
+
+      # Step 3: Send data to Claude API
+      - name: Generate Blog Post with Claude
+        id: call_claude
+        run: |
+          CLAUDE_API_URL="https://api.anthropic.com/v1/messages"
+          
+          # Read the diff from the file
+          PR_DIFF=$(cat pr_diff.txt)
+
+          # Escape the PR title, body, commits, and diff properly using jq for safe JSON embedding
+          PR_TITLE_ESCAPED=$(echo "$PR_TITLE" | jq -Rs .)
+          PR_BODY_ESCAPED=$(echo "$PR_BODY" | jq -Rs .)
+          PR_COMMITS_ESCAPED=$(echo "$PR_COMMITS" | jq -Rs .)
+          PR_DIFF_ESCAPED=$(echo "$PR_DIFF" | jq -Rs .)
+
+          # Construct the prompt content (message)
+          MESSAGE_CONTENT="\n\nHuman: Write a blog post summarizing the following contribution:\nTitle: $PR_TITLE_ESCAPED\nDescription: $PR_BODY_ESCAPED\nCommits: $PR_COMMITS_ESCAPED\nCode changes:\n$PR_DIFF_ESCAPED\n\nAssistant:"
+
+          # Construct the JSON payload with the message format
+          JSON_PAYLOAD=$(jq -n --arg content "$MESSAGE_CONTENT" \
+          '{
+              model: "claude-3-5-sonnet-20240620",
+              max_tokens: 1024,
+              messages: [
+                {
+                  role: "user",
+                  content: $content
+                }
+              ]
+          }')
+
+          # Debug: print the JSON payload to verify its structure
+          echo "JSON Payload: $JSON_PAYLOAD"
+
+          # Make API call to Claude with the correct headers and body structure
+          FULL_RESPONSE=$(curl -X POST $CLAUDE_API_URL \
+            --header "anthropic-version: 2023-06-01" \
+            --header "content-type: application/json" \
+            --header "x-api-key: ${{ secrets.CLAUDE_API_KEY }}" \
+            --data "$JSON_PAYLOAD")
+
+          # Debug: print the full response from the API
+          echo "Full API Response: $FULL_RESPONSE"
+
+          # Extract the blog post (content inside 'text' field in the response)
+          BLOG_POST=$(echo "$FULL_RESPONSE" | jq -r '.content[] | select(.type=="text") | .text')
+
+          # Debug: print the extracted blog post
+          echo "Extracted Blog Post: $BLOG_POST"
+          
+          # Store the blog post in a file instead of an environment variable
+          echo "$BLOG_POST" > blog_post.txt
+          
+      # Step 4: Post Blog Summary as Comment
+      - name: Post Blog Summary as Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const blogPost = fs.readFileSync('blog_post.txt', 'utf8');
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `### Blog Post:\n${blogPost}`
+            });
