@@ -1,8 +1,10 @@
 import reflex as rx
 
 
-class Customer(rx.Model, table=True):  # type: ignore
-    """The customer model."""
+class GithubPullRequest(
+    rx.Model,
+    table=True,
+):  # type: ignore
 
     customer_name: str
     email: str

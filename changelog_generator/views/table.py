@@ -1,6 +1,6 @@
 import reflex as rx
 
-from changelog_generator.backend.backend import Customer, State
+from changelog_generator.backend.backend import GithubPullRequest, State
 from changelog_generator.components.form_field import form_field
 from changelog_generator.components.gender_badges import gender_badge
 
@@ -16,47 +16,47 @@ def _header_cell(text: str, icon: str):
     )
 
 
-def _show_customer(user: Customer):
+def _show_pull_request(pull_request: GithubPullRequest):
     """Show a customer in a table row."""
     return rx.table.row(
-        rx.table.row_header_cell(user.customer_name),
-        rx.table.cell(user.email),
-        rx.table.cell(user.age),
+        rx.table.row_header_cell(pull_request.customer_name),
+        rx.table.cell(pull_request.email),
+        rx.table.cell(pull_request.age),
         rx.table.cell(
             rx.match(
-                user.gender,
+                pull_request.gender,
                 ("Male", gender_badge("Male")),
                 ("Female", gender_badge("Female")),
                 ("Other", gender_badge("Other")),
                 gender_badge("Other"),
             ),
         ),
-        rx.table.cell(user.location),
-        rx.table.cell(user.job),
-        rx.table.cell(user.salary),
+        rx.table.cell(pull_request.location),
+        rx.table.cell(pull_request.job),
+        rx.table.cell(pull_request.salary),
         rx.table.cell(
             rx.hstack(
                 rx.cond(
-                    (State.current_user.id == user.id),
+                    (State.current_pull_request.id == pull_request.id),
                     rx.button(
                         rx.icon("mail-plus", size=22),
                         rx.text("Generate Email", size="3"),
                         color_scheme="blue",
-                        on_click=State.generate_email(user),
+                        on_click=State.generate_email(pull_request),
                         loading=State.gen_response,
                     ),
                     rx.button(
                         rx.icon("mail-plus", size=22),
                         rx.text("Generate Email", size="3"),
                         color_scheme="blue",
-                        on_click=State.generate_email(user),
+                        on_click=State.generate_email(pull_request),
                         disabled=State.gen_response,
                     ),
                 ),
-                _update_customer_dialog(user),
+                _update_customer_dialog(pull_request),
                 rx.icon_button(
                     rx.icon("trash-2", size=22),
-                    on_click=lambda: State.delete_customer(user.id),
+                    on_click=lambda: State.delete_pull_request(pull_request.id),
                     size="2",
                     variant="solid",
                     color_scheme="red",
@@ -227,7 +227,7 @@ def _add_customer_button() -> rx.Component:
     )
 
 
-def _update_customer_dialog(user):
+def _update_customer_dialog(pull_request):
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.icon_button(
@@ -235,7 +235,7 @@ def _update_customer_dialog(user):
                 color_scheme="green",
                 size="2",
                 variant="solid",
-                on_click=lambda: State.get_user(user),
+                on_click=lambda: State.get_pull_request(pull_request),
             ),
         ),
         rx.dialog.content(
@@ -276,7 +276,7 @@ def _update_customer_dialog(user):
                                 "text",
                                 "customer_name",
                                 "user",
-                                user.customer_name,
+                                pull_request.customer_name,
                             ),
                             # Location
                             form_field(
@@ -285,7 +285,7 @@ def _update_customer_dialog(user):
                                 "text",
                                 "location",
                                 "map-pinned",
-                                user.location,
+                                pull_request.location,
                             ),
                             spacing="3",
                             width="100%",
@@ -298,7 +298,7 @@ def _update_customer_dialog(user):
                                 "email",
                                 "email",
                                 "mail",
-                                user.email,
+                                pull_request.email,
                             ),
                             # Job
                             form_field(
@@ -307,7 +307,7 @@ def _update_customer_dialog(user):
                                 "text",
                                 "job",
                                 "briefcase",
-                                user.job,
+                                pull_request.job,
                             ),
                             spacing="3",
                             width="100%",
@@ -322,7 +322,7 @@ def _update_customer_dialog(user):
                             ),
                             rx.select(
                                 ["Male", "Female", "Other"],
-                                default_value=user.gender,
+                                default_value=pull_request.gender,
                                 name="gender",
                                 direction="row",
                                 as_child=True,
@@ -339,7 +339,7 @@ def _update_customer_dialog(user):
                                 "number",
                                 "age",
                                 "person-standing",
-                                user.age.to(str),
+                                pull_request.age.to(str),
                             ),
                             # Salary
                             form_field(
@@ -348,7 +348,7 @@ def _update_customer_dialog(user):
                                 "number",
                                 "salary",
                                 "dollar-sign",
-                                user.salary.to(str),
+                                pull_request.salary.to(str),
                             ),
                             spacing="3",
                             width="100%",
@@ -455,7 +455,9 @@ def main_table():
                     _header_cell("Actions", "cog"),
                 ),
             ),
-            rx.table.body(rx.foreach(State.users, _show_customer)),
+            rx.table.body(
+                rx.foreach(State.pull_requests, _show_pull_request),
+            ),
             variant="surface",
             size="3",
             width="100%",
