@@ -25,6 +25,7 @@ jobs:
           echo "PR_TITLE=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "PR_BODY=$(jq -r .pull_request.body < $GITHUB_EVENT_PATH)" >> pr_body.txt
           echo "PR_COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.pull_request.commits_url }} | jq -r '.[] | .commit.message' | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "CONTRIBUTOR_NAMES=${CONTRIBUTOR_NAMES}" >> $GITHUB_ENV
 
           # Fetch all branches and do the diff
           git fetch --all
@@ -51,9 +52,10 @@ jobs:
           PR_BODY_ESCAPED=$(echo "$PR_BODY" | jq -Rs .)
           PR_COMMITS_ESCAPED=$(echo "$PR_COMMITS" | jq -Rs .)
           PR_DIFF_ESCAPED=$(echo "$PR_DIFF" | jq -Rs .)
+          PR_CONTRIBUTORS_ESCAPED=$(echo "$CONTRIBUTOR_NAMES" | jq -Rs .)
 
           # Construct the prompt content (message)
-          MESSAGE_CONTENT="\n\nHuman: Write a blog post summarizing the following contribution:\nTitle: $PR_TITLE_ESCAPED\nDescription: $PR_BODY_ESCAPED\nCommits: $PR_COMMITS_ESCAPED\nCode changes:\n$PR_DIFF_ESCAPED\n\nAssistant:"
+          MESSAGE_CONTENT="\n\nHuman: Write a blog post summarizing the following contribution:\nTitle: $PR_TITLE_ESCAPED\nDescription: $PR_BODY_ESCAPED\nCommits: $PR_COMMITS_ESCAPED\nCode changes:\n$PR_DIFF_ESCAPED\nContributor:\n$PR_CONTRIBUTORS_ESCAPED\nAssistant:"
 
           # Construct the JSON payload with the message format
           JSON_PAYLOAD=$(jq -n --arg content "$MESSAGE_CONTENT" \
