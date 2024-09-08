@@ -64,6 +64,10 @@ class State(rx.State):
 
     current_pull_request: GithubPullRequest = GithubPullRequest()
     pull_requests: list[GithubPullRequest] = []
+    release_tag_start: str = ""
+    release_tag_end: str = ""
+    repository_url: str = ""
+
     products: dict[str, str] = {}
     email_content_data: str = (
         "Click 'Generate Changelog' make an AI generated changelog."
@@ -74,6 +78,27 @@ class State(rx.State):
     search_value: str = ""
     sort_value: str = ""
     sort_reverse: bool = False
+
+    def set_repository_url(
+        self,
+        value: str,
+    ) -> None:
+        self.repository_url = value
+        print(self.repository_url)
+
+    def set_release_tag_start(
+        self,
+        value: str,
+    ) -> None:
+        self.release_tag_start = value
+        print(self.release_tag_start)
+
+    def set_release_tag_end(
+        self,
+        value: str,
+    ) -> None:
+        self.release_tag_end = value
+        print(self.release_tag_end)
 
     def load_entries(self) -> list[GithubPullRequest]:
         """Get all users from the database."""
