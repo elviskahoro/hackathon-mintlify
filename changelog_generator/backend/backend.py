@@ -130,53 +130,6 @@ class State(rx.State):
     ) -> None:
         self.current_pull_request = pull_request
 
-    def add_customer_to_db(
-        self,
-        form_data: dict,
-    ):
-        self.current_pull_request = form_data
-
-        with rx.session() as session:
-            if session.exec(
-                select(GithubPullRequest).where(
-                    GithubPullRequest.email == self.current_pull_request["email"],
-                ),
-            ).first():
-                return rx.window_alert("User with this email already exists")
-
-            session.add(GithubPullRequest(**self.current_pull_request))
-            session.commit()
-
-        self.load_entries()
-        return rx.toast.info(
-            f"User {self.current_pull_request['customer_name']} has been added.",
-            position="bottom-right",
-        )
-
-    def update_customer_to_db(
-        self,
-        form_data: dict,
-    ):
-        self.current_pull_request.update(form_data)
-        with rx.session() as session:
-            customer = session.exec(
-                select(GithubPullRequest).where(
-                    GithubPullRequest.id == self.current_pull_request["id"],
-                ),
-            ).first()
-            for field in GithubPullRequest.get_fields():
-                if field != "id":
-                    setattr(customer, field, self.current_pull_request[field])
-
-            session.add(customer)
-            session.commit()
-
-        self.load_entries()
-        return rx.toast.info(
-            f"User {self.current_pull_request['customer_name']} has been modified.",
-            position="bottom-right",
-        )
-
     def delete_customer(
         self,
         id: int,
