@@ -56,7 +56,7 @@ jobs:
           PR_CONTRIBUTORS_ESCAPED=$(echo "$CONTRIBUTOR_NAMES" | jq -Rs .)
 
           # Construct the prompt content (message)
-          MESSAGE_CONTENT="\n\nHuman: Write a blog post summarizing the following contribution:\nTitle: $PR_TITLE_ESCAPED\nDescription: $PR_BODY_ESCAPED\nCommits: $PR_COMMITS_ESCAPED\nCode changes:\n$PR_DIFF_ESCAPED\nContributor:\n$PR_CONTRIBUTORS_ESCAPED\n\n Mention contributors and thank you them. Highlight and inline into blogpost key code change as code section. Omit any unnecessary/or boilerplate or repetitive sections and use ... to indicate omitted code if needed. no need to show imports, logging or exception processing etc. Provide a short explanation of what the key logic does. no more than 20 lines. Assistant:"
+          MESSAGE_CONTENT="\n\nHuman: Write a blog post summarizing the following contribution:\nTitle: $PR_TITLE_ESCAPED\nDescription: $PR_BODY_ESCAPED\nCommits: $PR_COMMITS_ESCAPED\nCode changes:\n$PR_DIFF_ESCAPED\nContributor:\n$PR_CONTRIBUTORS_ESCAPED\n\n Mention contributors and thank you them. Highlight and inline into blogpost key code change as code section. Omit any unnecessary/or boilerplate or repetitive sections and use ... to indicate omitted code if needed. no need to show imports, logging or exception processing etc. Provide a short explanation of what the key logic does. no more than 20 lines. If PR doesn't include code change (or any code), don't include it to blogpost. Assistant:"
 
           # Construct the JSON payload with the message format
           JSON_PAYLOAD=$(jq -n --arg content "$MESSAGE_CONTENT" \
