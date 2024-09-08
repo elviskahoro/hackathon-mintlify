@@ -1,0 +1,2 @@
+reflex>=v0.5.10
+openai>=1
