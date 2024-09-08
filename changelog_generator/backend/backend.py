@@ -5,10 +5,42 @@ import os
 import openai
 import reflex as rx
 from sqlmodel import or_, select
+import requests
+from datetime import datetime
+
+# Replace with your GitHub Personal Access Token
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', 'your-github-token')
+# GitHub API base URL
+GITHUB_API_URL = 'https://api.github.com'
+
+
 
 from .models import GithubPullRequest
 
 _client = None
+
+def fetch_pull_requests(owner, repo, state='open', per_page=5):
+    """
+    Fetch pull requests from a given repository.
+    :param owner: Repository owner (GitHub username or organization)
+    :param repo: Repository name
+    :param state: The state of the pull requests ('open', 'closed', or 'all')
+    :param per_page: Number of pull requests per page
+    :return: A list of pull requests
+    """
+    url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls"
+    headers = {
+        'Authorization': f"Bearer {GITHUB_TOKEN}",
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    params = {
+        'state': state,
+        'per_page': per_page
+    }
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()  # Raise an exception for non-2xx responses
+    return response.json()
+
 
 
 def get_openai_client():
@@ -17,6 +49,7 @@ def get_openai_client():
         _client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
     return _client
+
 
 
 class State(rx.State):
