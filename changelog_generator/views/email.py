@@ -21,7 +21,10 @@ def email_box():
                 right="1px",
                 z_index="10",
             ),
-            rx.text(State.email_content_data, line_height="1.75"),
+            rx.text(
+                State.email_content_data,
+                line_height="1.75",
+            ),
             type="auto",
             scrollbars="vertical",
             height="100%",
@@ -35,7 +38,10 @@ def email_box():
 def options():
     return rx.vstack(
         rx.vstack(
-            rx.heading(f"Length limit: {State.length}", size="5"),
+            rx.heading(
+                f"Length limit: {State.length}",
+                size="5",
+            ),
             rx.slider(
                 min=500,
                 max=1500,
