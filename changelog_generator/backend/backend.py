@@ -8,46 +8,6 @@ from sqlmodel import or_, select
 
 from .models import GithubPullRequest
 
-products: dict[str, dict] = {
-    "T-shirt": {
-        "description": "A plain white t-shirt made of 100% cotton.",
-        "price": 10.99,
-    },
-    "Jeans": {
-        "description": "A pair of blue denim jeans with a straight leg fit.",
-        "price": 24.99,
-    },
-    "Hoodie": {
-        "description": "A black hoodie made of a cotton and polyester blend.",
-        "price": 34.99,
-    },
-    "Cardigan": {
-        "description": "A grey cardigan with a V-neck and long sleeves.",
-        "price": 36.99,
-    },
-    "Joggers": {
-        "description": "A pair of black joggers made of a cotton and polyester blend.",
-        "price": 44.99,
-    },
-    "Dress": {"description": "A black dress made of 100% polyester.", "price": 49.99},
-    "Jacket": {
-        "description": "A navy blue jacket made of 100% cotton.",
-        "price": 55.99,
-    },
-    "Skirt": {
-        "description": "A brown skirt made of a cotton and polyester blend.",
-        "price": 29.99,
-    },
-    "Shorts": {
-        "description": "A pair of black shorts made of a cotton and polyester blend.",
-        "price": 19.99,
-    },
-    "Sweater": {
-        "description": "A white sweater with a crew neck and long sleeves.",
-        "price": 39.99,
-    },
-}
-
 _client = None
 
 
@@ -172,7 +132,7 @@ class State(rx.State):
                 },
                 {
                     "role": "user",
-                    "content": f"Based on these {products} write a sales email to {self.current_pull_request.customer_name} and email {self.current_pull_request.email} who is {self.current_pull_request.age} years old and a {self.current_pull_request.gender} gender. {self.current_pull_request.customer_name} lives in {self.current_pull_request.location} and works as a {self.current_pull_request.job} and earns {self.current_pull_request.salary} per year. Make sure the email recommends one product only and is personalized to {self.current_pull_request.customer_name}. The company is named Reflex its website is https://reflex.dev.",
+                    "content": f"Based on these {self.pull_requests} write a changelog draft to junior level developer",
                 },
             ],
         )
@@ -188,8 +148,7 @@ class State(rx.State):
         async with self:
             self.gen_response = False
 
-    def generate_email(self, user: GithubPullRequest):
-        self.current_pull_request = GithubPullRequest(**user)
+    def generate_email(self):
         self.gen_response = True
         self.email_content_data = ""
         return State.call_openai

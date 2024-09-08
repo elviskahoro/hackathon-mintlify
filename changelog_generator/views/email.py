@@ -79,6 +79,11 @@ def email_gen_ui():
     return (
         rx.card(
             rx.flex(
+                rx.button(
+                    "Generate Changelog",
+                    on_click=State.generate_email,
+                    width="100%",
+                ),
                 email_box(),
                 rx.divider(),
                 options(),
