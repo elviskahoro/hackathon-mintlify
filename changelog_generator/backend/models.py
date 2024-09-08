@@ -6,10 +6,9 @@ class GithubPullRequest(
     table=True,
 ):  # type: ignore
 
-    customer_name: str
-    email: str
-    age: int
-    gender: str
-    location: str
-    job: str
-    salary: int
+    title: str
+    number: int
+    body: str
+    author: str
+    merged_at: str
+    url: str
