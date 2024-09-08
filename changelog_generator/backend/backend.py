@@ -8,15 +8,17 @@ from sqlmodel import or_, select
 
 from .models import GithubPullRequest
 
-_client = None
+CLIENT_OPEN_AI = None
 
 
 def get_openai_client():
-    global _client
-    if _client is None:
-        _client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    global CLIENT_OPEN_AI
+    if CLIENT_OPEN_AI is None:
+        CLIENT_OPEN_AI = openai.OpenAI(
+            api_key=os.environ["OPENAI_API_KEY"],
+        )
 
-    return _client
+    return CLIENT_OPEN_AI
 
 
 class State(rx.State):
