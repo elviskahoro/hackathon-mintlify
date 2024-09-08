@@ -70,24 +70,33 @@ def _show_pull_request(pull_request: GithubPullRequest):
 def main_table():
     return rx.fragment(
         rx.flex(
-            rx.spacer(),
-            rx.cond(
-                State.sort_reverse,
-                rx.icon(
-                    "arrow-down-z-a",
-                    size=28,
-                    stroke_width=1.5,
-                    cursor="pointer",
-                    on_click=State.toggle_sort,
+            rx.flex(
+                rx.input(
+                    placeholder="Repository url",
+                    size="3",
+                    max_width="225px",
+                    width="100%",
+                    variant="surface",
+                    on_change=lambda value: State.set_repository_url(value),
                 ),
-                rx.icon(
-                    "arrow-down-a-z",
-                    size=28,
-                    stroke_width=1.5,
-                    cursor="pointer",
-                    on_click=State.toggle_sort,
+                rx.input(
+                    placeholder="Start tag",
+                    size="3",
+                    max_width="225px",
+                    width="100%",
+                    variant="surface",
+                    on_change=lambda value: State.set_release_tag_start(value),
+                ),
+                rx.input(
+                    placeholder="End tag",
+                    size="3",
+                    max_width="225px",
+                    width="100%",
+                    variant="surface",
+                    on_change=lambda value: State.set_release_tag_end(value),
                 ),
             ),
+            rx.spacer(),
             rx.select(
                 [
                     "customer_name",
@@ -101,15 +110,6 @@ def main_table():
                 placeholder="Sort By: Name",
                 size="3",
                 on_change=lambda sort_value: State.sort_values(sort_value),
-            ),
-            rx.input(
-                rx.input.slot(rx.icon("search")),
-                placeholder="Search here...",
-                size="3",
-                max_width="225px",
-                width="100%",
-                variant="surface",
-                on_change=lambda value: State.filter_values(value),
             ),
             justify="end",
             align="center",
