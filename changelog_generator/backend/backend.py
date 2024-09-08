@@ -4,7 +4,7 @@ import os
 
 import openai
 import reflex as rx
-from sqlmodel import asc, desc, func, or_, select
+from sqlmodel import or_, select
 
 from .models import GithubPullRequest
 
@@ -114,20 +114,6 @@ class State(rx.State):
                         ],
                     ),
                 )
-
-            if self.sort_value:
-                sort_column = getattr(GithubPullRequest, self.sort_value)
-                if self.sort_value == "salary":
-                    order = desc(sort_column) if self.sort_reverse else asc(sort_column)
-
-                else:
-                    order = (
-                        desc(func.lower(sort_column))
-                        if self.sort_reverse
-                        else asc(func.lower(sort_column))
-                    )
-
-                query = query.order_by(order)
 
             self.pull_requests = session.exec(query).all()
 
