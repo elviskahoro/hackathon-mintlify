@@ -23,7 +23,7 @@ jobs:
         id: pr_info
         run: |
           echo "PR_TITLE=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
-          echo "PR_BODY=$(jq -r .pull_request.body < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+          echo "PR_BODY=$(jq -r .pull_request.body < $GITHUB_EVENT_PATH)" >> pr_body.txt
           echo "PR_COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.pull_request.commits_url }} | jq -r '.[] | .commit.message' | tr '\n' ' ')" >> $GITHUB_ENV
 
           # Fetch all branches and do the diff
@@ -44,6 +44,7 @@ jobs:
           
           # Read the diff from the file
           PR_DIFF=$(cat pr_diff.txt)
+          PR_BODY=$(cat pr_body.txt)
 
           # Escape the PR title, body, commits, and diff properly using jq for safe JSON embedding
           PR_TITLE_ESCAPED=$(echo "$PR_TITLE" | jq -Rs .)
