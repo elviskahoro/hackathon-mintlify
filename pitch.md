@@ -20,4 +20,4 @@ These blog posts help engineers communicate about their work to a broader audien
 Here's a PR I made to demonstrate how Visionary works:
 
 # Model
-We’re building a suite of creator tools for engineers based solely on the code they deploy. In the future, you’ll be able to generate newsletters, social media posts, and publishing schedules, empowering any engineer to become a Visionary. 
+We’re building a suite of creator tools for engineers based solely on the code they deploy. In the future, you or your engineering department will be able to generate engineering blog posts, newsletters, social media posts, and publishing schedules, empowering any engineer to become a Visionary. 
