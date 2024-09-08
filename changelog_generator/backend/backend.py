@@ -130,21 +130,21 @@ class State(rx.State):
     ) -> None:
         self.current_pull_request = pull_request
 
-    def delete_customer(
+    def delete_pull_request(
         self,
         id: int,
     ):
         """Delete a customer from the database."""
         with rx.session() as session:
-            customer = session.exec(
+            pull_request = session.exec(
                 select(GithubPullRequest).where(GithubPullRequest.id == id),
             ).first()
-            session.delete(customer)
+            session.delete(pull_request)
             session.commit()
 
         self.load_entries()
         return rx.toast.info(
-            f"User {customer.customer_name} has been deleted.",
+            f"User {pull_request.customer_name} has been deleted.",
             position="bottom-right",
         )
 
