@@ -94,12 +94,14 @@ class State(rx.State):
                 sort_column = getattr(Customer, self.sort_value)
                 if self.sort_value == "salary":
                     order = desc(sort_column) if self.sort_reverse else asc(sort_column)
+
                 else:
                     order = (
                         desc(func.lower(sort_column))
                         if self.sort_reverse
                         else asc(func.lower(sort_column))
                     )
+
                 query = query.order_by(order)
 
             self.users = session.exec(query).all()
