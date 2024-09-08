@@ -4,7 +4,10 @@ from changelog_generator.backend.backend import GithubPullRequest, State
 from changelog_generator.components.gender_badges import gender_badge
 
 
-def _header_cell(text: str, icon: str):
+def _header_cell(
+    text: str,
+    icon: str,
+):
     return rx.table.column_header_cell(
         rx.hstack(
             rx.icon(icon, size=18),
