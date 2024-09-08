@@ -6,7 +6,7 @@ import openai
 import reflex as rx
 from sqlmodel import asc, desc, func, or_, select
 
-from .models import Customer
+from .models import GithubPullRequest
 
 products: dict[str, dict] = {
     "T-shirt": {
@@ -62,8 +62,8 @@ def get_openai_client():
 class State(rx.State):
     """The app state."""
 
-    current_user: Customer = Customer()
-    users: list[Customer] = []
+    current_pull_request: GithubPullRequest = GithubPullRequest()
+    pull_requests: list[GithubPullRequest] = []
     products: dict[str, str] = {}
     email_content_data: str = (
         "Click 'Generate Changelog' make an AI generated changelog."
@@ -75,23 +75,23 @@ class State(rx.State):
     sort_value: str = ""
     sort_reverse: bool = False
 
-    def load_entries(self) -> list[Customer]:
+    def load_entries(self) -> list[GithubPullRequest]:
         """Get all users from the database."""
         with rx.session() as session:
-            query = select(Customer)
+            query = select(GithubPullRequest)
             if self.search_value:
                 search_value = f"%{str(self.search_value).lower()}%"
                 query = query.where(
                     or_(
                         *[
-                            getattr(Customer, field).ilike(search_value)
-                            for field in Customer.get_fields()
+                            getattr(GithubPullRequest, field).ilike(search_value)
+                            for field in GithubPullRequest.get_fields()
                         ],
                     ),
                 )
 
             if self.sort_value:
-                sort_column = getattr(Customer, self.sort_value)
+                sort_column = getattr(GithubPullRequest, self.sort_value)
                 if self.sort_value == "salary":
                     order = desc(sort_column) if self.sort_reverse else asc(sort_column)
 
@@ -104,9 +104,12 @@ class State(rx.State):
 
                 query = query.order_by(order)
 
-            self.users = session.exec(query).all()
+            self.pull_requests = session.exec(query).all()
 
-    def sort_values(self, sort_value: str) -> None:
+    def sort_values(
+        self,
+        sort_value: str,
+    ) -> None:
         self.sort_value = sort_value
         self.load_entries()
 
@@ -114,54 +117,75 @@ class State(rx.State):
         self.sort_reverse = not self.sort_reverse
         self.load_entries()
 
-    def filter_values(self, search_value) -> None:
+    def filter_values(
+        self,
+        search_value,
+    ) -> None:
         self.search_value = search_value
         self.load_entries()
 
-    def get_user(self, user: Customer) -> None:
-        self.current_user = user
+    def get_pull_request(
+        self,
+        pull_request: GithubPullRequest,
+    ) -> None:
+        self.current_pull_request = pull_request
 
-    def add_customer_to_db(self, form_data: dict):
-        self.current_user = form_data
+    def add_customer_to_db(
+        self,
+        form_data: dict,
+    ):
+        self.current_pull_request = form_data
 
         with rx.session() as session:
             if session.exec(
-                select(Customer).where(Customer.email == self.current_user["email"]),
+                select(GithubPullRequest).where(
+                    GithubPullRequest.email == self.current_pull_request["email"],
+                ),
             ).first():
                 return rx.window_alert("User with this email already exists")
 
-            session.add(Customer(**self.current_user))
+            session.add(GithubPullRequest(**self.current_pull_request))
             session.commit()
 
         self.load_entries()
         return rx.toast.info(
-            f"User {self.current_user['customer_name']} has been added.",
+            f"User {self.current_pull_request['customer_name']} has been added.",
             position="bottom-right",
         )
 
-    def update_customer_to_db(self, form_data: dict):
-        self.current_user.update(form_data)
+    def update_customer_to_db(
+        self,
+        form_data: dict,
+    ):
+        self.current_pull_request.update(form_data)
         with rx.session() as session:
             customer = session.exec(
-                select(Customer).where(Customer.id == self.current_user["id"]),
+                select(GithubPullRequest).where(
+                    GithubPullRequest.id == self.current_pull_request["id"],
+                ),
             ).first()
-            for field in Customer.get_fields():
+            for field in GithubPullRequest.get_fields():
                 if field != "id":
-                    setattr(customer, field, self.current_user[field])
+                    setattr(customer, field, self.current_pull_request[field])
 
             session.add(customer)
             session.commit()
 
         self.load_entries()
         return rx.toast.info(
-            f"User {self.current_user['customer_name']} has been modified.",
+            f"User {self.current_pull_request['customer_name']} has been modified.",
             position="bottom-right",
         )
 
-    def delete_customer(self, id: int):
+    def delete_customer(
+        self,
+        id: int,
+    ):
         """Delete a customer from the database."""
         with rx.session() as session:
-            customer = session.exec(select(Customer).where(Customer.id == id)).first()
+            customer = session.exec(
+                select(GithubPullRequest).where(GithubPullRequest.id == id),
+            ).first()
             session.delete(customer)
             session.commit()
 
@@ -184,7 +208,7 @@ class State(rx.State):
                 },
                 {
                     "role": "user",
-                    "content": f"Based on these {products} write a sales email to {self.current_user.customer_name} and email {self.current_user.email} who is {self.current_user.age} years old and a {self.current_user.gender} gender. {self.current_user.customer_name} lives in {self.current_user.location} and works as a {self.current_user.job} and earns {self.current_user.salary} per year. Make sure the email recommends one product only and is personalized to {self.current_user.customer_name}. The company is named Reflex its website is https://reflex.dev.",
+                    "content": f"Based on these {products} write a sales email to {self.current_pull_request.customer_name} and email {self.current_pull_request.email} who is {self.current_pull_request.age} years old and a {self.current_pull_request.gender} gender. {self.current_pull_request.customer_name} lives in {self.current_pull_request.location} and works as a {self.current_pull_request.job} and earns {self.current_pull_request.salary} per year. Make sure the email recommends one product only and is personalized to {self.current_pull_request.customer_name}. The company is named Reflex its website is https://reflex.dev.",
                 },
             ],
         )
@@ -200,8 +224,8 @@ class State(rx.State):
         async with self:
             self.gen_response = False
 
-    def generate_email(self, user: Customer):
-        self.current_user = Customer(**user)
+    def generate_email(self, user: GithubPullRequest):
+        self.current_pull_request = GithubPullRequest(**user)
         self.gen_response = True
         self.email_content_data = ""
         return State.call_openai
