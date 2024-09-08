@@ -34,33 +34,14 @@ def _show_pull_request(pull_request: GithubPullRequest):
         rx.table.cell(pull_request.job),
         rx.table.cell(pull_request.salary),
         rx.table.cell(
-            rx.hstack(
-                rx.cond(
-                    (State.current_pull_request.id == pull_request.id),
-                    rx.button(
-                        rx.icon("mail-plus", size=22),
-                        rx.text("Generate Email", size="3"),
-                        color_scheme="blue",
-                        on_click=State.generate_email(pull_request),
-                        loading=State.gen_response,
-                    ),
-                    rx.button(
-                        rx.icon("mail-plus", size=22),
-                        rx.text("Generate Email", size="3"),
-                        color_scheme="blue",
-                        on_click=State.generate_email(pull_request),
-                        disabled=State.gen_response,
-                    ),
-                ),
-                rx.icon_button(
-                    rx.icon("trash-2", size=22),
-                    on_click=lambda: State.delete_pull_request(pull_request.id),
-                    size="2",
-                    variant="solid",
-                    color_scheme="red",
-                ),
-                min_width="max-content",
+            rx.icon_button(
+                rx.icon("trash-2", size=22),
+                on_click=lambda: State.delete_pull_request(pull_request.id),
+                size="2",
+                variant="solid",
+                color_scheme="red",
             ),
+            min_width="max-content",
         ),
         style={"_hover": {"bg": rx.color("accent", 2)}},
         align="center",
