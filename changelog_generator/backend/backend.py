@@ -45,7 +45,7 @@ class State(rx.State):
     release_tag_end: str = ""
     repository_url: str = ""
 
-    email_content_data: str = (
+    changelog_content_data: str = (
         "Click 'Generate Changelog' make an AI generated changelog."
     )
     gen_response = False
@@ -157,16 +157,16 @@ class State(rx.State):
                 response_text = item.choices[0].delta.content
                 async with self:
                     if response_text is not None:
-                        self.email_content_data += response_text
+                        self.changelog_content_data += response_text
 
                 yield
 
         async with self:
             self.gen_response = False
 
-    def generate_email(self):
+    def generate_changelog(self):
         self.gen_response = True
-        self.email_content_data = ""
+        self.changelog_content_data = ""
         return State.call_openai
 
     @rx.background
