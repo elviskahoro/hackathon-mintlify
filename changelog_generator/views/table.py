@@ -1,16 +1,13 @@
 import reflex as rx
 
 from changelog_generator.backend.backend import GithubPullRequest, State
-from changelog_generator.components.gender_badges import gender_badge
 
 
 def _header_cell(
     text: str,
-    icon: str,
 ):
     return rx.table.column_header_cell(
         rx.hstack(
-            rx.icon(icon, size=18),
             rx.text(text),
             align="center",
             spacing="2",
@@ -18,24 +15,16 @@ def _header_cell(
     )
 
 
-def _show_pull_request(pull_request: GithubPullRequest):
+def _show_pull_request(
+    pull_request: GithubPullRequest,
+):
     """Show a customer in a table row."""
     return rx.table.row(
-        rx.table.row_header_cell(pull_request.customer_name),
-        rx.table.cell(pull_request.email),
-        rx.table.cell(pull_request.age),
-        rx.table.cell(
-            rx.match(
-                pull_request.gender,
-                ("Male", gender_badge("Male")),
-                ("Female", gender_badge("Female")),
-                ("Other", gender_badge("Other")),
-                gender_badge("Other"),
-            ),
-        ),
-        rx.table.cell(pull_request.location),
-        rx.table.cell(pull_request.job),
-        rx.table.cell(pull_request.salary),
+        rx.table.row_header_cell(pull_request.number),
+        rx.table.cell(pull_request.author),
+        rx.table.cell(pull_request.title),
+        rx.table.cell(pull_request.merged_at),
+        rx.table.cell(pull_request.url),
         rx.table.cell(
             rx.icon_button(
                 rx.icon("trash-2", size=22),
@@ -93,14 +82,12 @@ def main_table():
         rx.table.root(
             rx.table.header(
                 rx.table.row(
-                    _header_cell("Name", "square-user-round"),
-                    _header_cell("Email", "mail"),
-                    _header_cell("Age", "person-standing"),
-                    _header_cell("Gender", "user-round"),
-                    _header_cell("Location", "map-pinned"),
-                    _header_cell("Job", "briefcase"),
-                    _header_cell("Salary", "dollar-sign"),
-                    _header_cell("Actions", "cog"),
+                    _header_cell("PR #"),
+                    _header_cell("Author"),
+                    _header_cell("Title"),
+                    _header_cell("Merged at"),
+                    _header_cell("URL"),
+                    _header_cell("Actions"),
                 ),
             ),
             rx.table.body(
