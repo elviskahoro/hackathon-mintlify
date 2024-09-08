@@ -19,6 +19,35 @@ from .models import GithubPullRequest
 
 _client = None
 
+def fetch_user_orgs():
+    """
+    Fetches all organizations the authenticated user is part of.
+    :return: List of organizations.
+    """
+    url = f"{GITHUB_API_URL}/user/orgs"
+    headers = {
+        'Authorization': f"Bearer {GITHUB_TOKEN}",
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+def fetch_repos(owner):
+    """
+    Fetch all repositories for a given owner (organization or user).
+    :param owner: GitHub organization or user
+    :return: A list of repositories
+    """
+    url = f"{GITHUB_API_URL}/users/{owner}/repos"
+    headers = {
+        'Authorization': f"Bearer {GITHUB_TOKEN}",
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
 def fetch_pull_requests(owner, repo, state='open', per_page=5):
     """
     Fetch pull requests from a given repository.
@@ -40,8 +69,6 @@ def fetch_pull_requests(owner, repo, state='open', per_page=5):
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()  # Raise an exception for non-2xx responses
     return response.json()
-
-
 
 def get_openai_client():
     global _client
