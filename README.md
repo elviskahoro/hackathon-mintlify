@@ -18,5 +18,8 @@ The workflow is triggered when a PR is opened, edited, or synchronized. It perfo
 
 ## Example
 
+
+https://github.com/elviskahoro/mintlify-hackathon/pull/12#issuecomment-2336839118
+
 https://github.com/elviskahoro/mintlify-hackathon/pull/24#issuecomment-2337114808
 
