@@ -16,10 +16,14 @@ The workflow is triggered when a PR is opened, edited, or synchronized. It perfo
 - A valid Claude API key must be set in the repository secrets as `CLAUDE_API_KEY`.
 - GitHub token permissions should include `contents: write`, `pull-requests: write`, and `issues: write`.
 
-## Example
+## Examples
 
+Performance improvement:
+https://github.com/elviskahoro/mintlify-hackathon/pull/23#issuecomment-2336895823
 
+Presentation script change:
 https://github.com/elviskahoro/mintlify-hackathon/pull/12#issuecomment-2336839118
 
+Adding Readme.md: 
 https://github.com/elviskahoro/mintlify-hackathon/pull/24#issuecomment-2337114808
 
