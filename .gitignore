@@ -2,6 +2,6 @@
 *.py[cod]
 .web
 __pycache__/
+alembic/
 assets/external/
 reflex.db
-alembic/
